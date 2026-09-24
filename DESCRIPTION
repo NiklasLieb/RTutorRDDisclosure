@@ -1,0 +1,20 @@
+Package: RTutorRDDisclosure
+Type: Package
+Title: RTutor Problem Set on Voluntary R&D Disclosure under Asymmetric Information
+Version: 0.1
+Date: 2026-24-09
+Author: Niklas Lieb
+Maintainer: Niklas Lieb <niklasue@gmx.de>
+Description: Interactive RTutor problem set, written as a bachelor's thesis at
+    Ulm University, that replicates and explains the empirical analysis of
+    Baruffaldi, Simeth, and Wehrheim (2024, Management Science). Users study
+    whether research-intensive firms publish more scientific articles after
+    brokerage house mergers and closures reduce their analyst coverage. The
+    problem set covers omitted variable bias, a difference-in-differences
+    design with firm, year, and event fixed effects, an event study of
+    pre-trends, a matching estimator, and heterogeneity analyses by
+    information asymmetry, financial constraints, and proprietary costs.
+License: Not yet licensed by the author. The default suggestion for licensing is
+	Problem set content: Creative Commons (CC BY-SA)
+	Package code: GPL >= 2.0
+Depends: RTutor, haven, dplyr, skimr, ggplot2, dagitty, ggdag, lfe, stargazer

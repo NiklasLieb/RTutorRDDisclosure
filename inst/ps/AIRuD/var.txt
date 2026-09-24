@@ -1,0 +1,119 @@
+orgvar | var | descr
+
+FIRM_ID | FIRM_ID | Anonymized firm identifier. Labels each company in the sample and stays constant over time.
+
+FYEAR | FYEAR | Fiscal year of the observation.
+
+E_ID | E_ID | Anonymized identifier of the brokerage house merger or closure event the observation belongs to. 
+
+PUB | PUB | Raw annual count of articles the firm published in academic journals in that fiscal year.
+
+LN_PUB | LN_PUB | Natural logarithm of one plus PUB. 
+
+COV | COV | Analyst coverage. Number of financial analysts issuing earnings forecasts for the firm in that fiscal year.
+
+BASPRD | BASPRD | Average daily difference between the ask and the bid price, scaled by the midpoint of the two.
+
+TREATED | TREATED | Dummy equal to one if the firm lost analyst coverage through the event, and zero if it serves as a control firm for that event.
+
+POST | POST | Dummy equal to one for firm-year observations in the post-event period of the event, and zero for the pre-event period.
+
+TREATED_X_POST | TREATED_X_POST | Interaction of TREATED and POST.
+
+TREATED_d_window1 | TREATED_d_window1 | Event-time lead. Dummy equal to one for a treated firm observed three years before its shock, and zero otherwise.
+
+TREATED_d_window2 | TREATED_d_window2 | Event-time lead. Dummy equal to one for a treated firm observed two years before its shock, and zero otherwise.
+
+TREATED_d_window3 | TREATED_d_window3 | Event-time lead. Dummy equal to one for a treated firm observed one year before its shock, and zero otherwise.
+
+TREATED_d_window4 | TREATED_d_window4 | Event-time lag. Dummy equal to one for a treated firm observed one year after its shock, and zero otherwise.
+
+TREATED_d_window5 | TREATED_d_window5 | Event-time lag. Dummy equal to one for a treated firm observed two years after its shock, and zero otherwise.
+
+TREATED_d_window6 | TREATED_d_window6 | Event-time lag. Dummy equal to one for a treated firm observed three years after its shock, and zero otherwise.
+
+weight | weight | Weight produced by the propensity score matching procedure.
+
+LN_AT | LN_AT | Firm size, measured by natural logarithm of total assets.
+
+RDTA | RDTA | Investment in research and development, measured by R and D expenditures scaled by total assets.
+
+LN_AGE | LN_AGE | Firm age, measured by natural logarithm of the number of years the firm is listed on CRSP or Compustat.
+
+PPETA | PPETA | Asset tangibility, measured by net property, plant and equipment scaled by total assets.
+
+CAPEXTA | CAPEXTA | Investment in fixed assets, measured by capital expenditures scaled by total assets.
+
+ROA | ROA | Profitability, measured by return on assets.
+
+LEV | LEV | Leverage, measured by total debt scaled by total assets.
+
+Q | Q | Growth opportunities, measured by measured by Tobin's Q.
+
+DELAYCON | DELAYCON | Financial constraints, measured by text-based index of Hoberg and Maksimovic (2015).
+
+INSTOWN | INSTOWN | Institutional ownership, measured by fraction of shares held by institutional investors.
+
+HINDEX | HINDEX | Product market competition, measured by Herfindahl index based on sales.
+
+HINDEX2 | HINDEX2 | Product market competition, measured by squared Herfindahl index based on sales.
+
+high_TREATED | high_TREATED | Treatment dummy of the high group. Equals TREATED for observations in that group and zero everywhere else.
+
+low_TREATED | low_TREATED | Treatment dummy of the low group. Equals TREATED for observations in that group and zero everywhere else.
+
+high_POST | high_POST | Post-event dummy of the high group. Equals POST for observations in that group and zero everywhere else.
+
+low_POST | low_POST | Post-event dummy of the low group. Equals POST for observations in that group and zero everywhere else.
+
+high_TREATED_X_POST | high_TREATED_X_POST | Difference-in-differences interaction of the high group. Its coefficient is the treatment effect estimated for that group alone.
+
+low_TREATED_X_POST | low_TREATED_X_POST | Difference-in-differences interaction of the low group. Its coefficient is the treatment effect estimated for that group alone.
+
+high_LN_AT | high_LN_AT | Firm size control, restricted to the high group of the current sample split.
+
+low_LN_AT | low_LN_AT | Firm size control, restricted to the low group of the current sample split.
+
+high_RDTA | high_RDTA | Investment in research and development control, restricted to the high group of the current sample split.
+
+low_RDTA | low_RDTA | Investment in research and development control, restricted to the low group of the current sample split.
+
+high_LN_AGE | high_LN_AGE | Firm age control, restricted to the high group of the current sample split.
+
+low_LN_AGE | low_LN_AGE | Firm age control, restricted to the low group of the current sample split.
+
+high_PPETA | high_PPETA | Asset tangibility control, restricted to the high group of the current sample split.
+
+low_PPETA | low_PPETA | Asset tangibility control, restricted to the low group of the current sample split.
+
+high_CAPEXTA | high_CAPEXTA | Investment in fixed assets control, restricted to the high group of the current sample split.
+
+low_CAPEXTA | low_CAPEXTA | Investment in fixed assets control, restricted to the low group of the current sample split.
+
+high_ROA | high_ROA | Profitability control, restricted to the high group of the current sample split.
+
+low_ROA | low_ROA | Profitability control, restricted to the low group of the current sample split.
+
+high_LEV | high_LEV | Leverage control, restricted to the high group of the current sample split.
+
+low_LEV | low_LEV | Leverage control, restricted to the low group of the current sample split.
+
+high_Q | high_Q | Growth opportunities control, restricted to the high group of the current sample split.
+
+low_Q | low_Q | Growth opportunities control, restricted to the low group of the current sample split.
+
+high_DELAYCON | high_DELAYCON | Financial constraints control, restricted to the high group of the current sample split.
+
+low_DELAYCON | low_DELAYCON | Financial constraints control, restricted to the low group of the current sample split.
+
+high_INSTOWN | high_INSTOWN | Institutional ownership control, restricted to the high group of the current sample split.
+
+low_INSTOWN | low_INSTOWN | Institutional ownership control, restricted to the low group of the current sample split.
+
+high_HINDEX | high_HINDEX | Product market competition control, restricted to the high group of the current sample split.
+
+low_HINDEX | low_HINDEX | Product market competition control, restricted to the low group of the current sample split.
+
+high_HINDEX2 | high_HINDEX2 | Product market competition control, restricted to the high group of the current sample split.
+
+low_HINDEX2 | low_HINDEX2 | Product market competition control, restricted to the low group of the current sample split.

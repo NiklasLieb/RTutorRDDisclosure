@@ -1,0 +1,1192 @@
+
+```{r 'check_ps', include=FALSE}
+
+user.name = 'ENTER A USER NAME HERE'
+```
+
+
+## Exercise Introduction
+
+***
+
+### Voluntary R&D Disclosure under Asymmetric Information
+
+Author: Niklas Lieb
+
+***
+
+Welcome to this problem set, which is part of my bachelor's thesis at Ulm University. It was created using the package `RTutor` by Sebastian Kranz. This interactive problem set is based on the paper **"Asymmetric Information and R&D Disclosure: Evidence from Scientific Publications"** by Baruffaldi, Simeth, and Wehrheim (Management Science, 2024). The article, appendix, and data can be found [here](https://pubsonline.informs.org/doi/10.1287/mnsc.2023.4721). For brevity, this paper will simply be referred to as *the paper* and its authors as *the authors* throughout the problem set.
+
+***
+
+Earlier work argues that information asymmetry in financial markets can lead to an increase in the cost of capital or even prevent firms from accessing external financing altogether (Merton, 1987; Diamond & Verrecchia, 1991). One way firms may attempt to reduce these asymmetries is voluntary disclosure, such as management forecasts (Balakrishnan et al., 2014).
+However, the situation is more complex for R&D-intensive firms, as the capital-market benefits of increased transparency may be partially or fully offset by the risk of proprietary information leakage to competitors (Bhattacharya & Ritter, 1983).
+
+To study this trade-off empirically, the authors exploit mergers and closures of brokerage houses as plausibly exogenous reductions in analyst coverage. Analysts act as information intermediaries, and such coverage losses have been shown to increase information asymmetry and to depress stock prices (Hong & Kacperczyk, 2010; Kelly & Ljungqvist, 2012). The authors expect firms to counter the resulting increase in information asymmetry by disclosing more of their scientific research, and they test this by comparing affected firms with unaffected ones in a Difference-in-Differences (DiD) design.
+
+The following figure summarizes the underlying mechanism.
+
+<p align="center">
+<img src="disclosure_tradeoff.png" style="width:90%;">
+</p>
+<p align="center"><em>Figure 1: The R&D disclosure trade-off. Source: own illustration based on the paper.</em></p>
+
+***
+
+The analysis proceeds in four steps. It starts with a first look at the data, develops the DiD estimator from a single event to the full sample, checks its robustness on a matched sample, and ends with a heterogeneity analysis that asks which firms react most strongly.
+
+## Structure
+
+**Exercise 1: Overview of Data**
+
+1.1 Load and Explore Data
+
+1.2 Look at a Specific Event
+
+
+**Exercise 2: Difference-in-Differences Regression**
+
+2.1 The Limits of a Simple Regression
+
+2.2 The DiD Idea in a Single Event 
+
+2.3 The DiD Regression on the Full Sample
+
+
+**Exercise 3: Matching Estimator**
+
+
+**Exercise 4: Heterogeneity Analysis**
+
+
+**Conclusion**
+
+
+**References**
+
+***
+
+### Beginner's guide
+
+The following paragraphs walk you through the most important elements of `RTutor`. While each exercise is self-contained and can in principle be tackled on its own, working through them in order is strongly recommended, as later exercises build on concepts introduced earlier.
+
+- **Code Chunks:** They appear whenever R code needs to be written or completed. Each chunk is accompanied by a task description. Read it carefully before typing, as the solution is only accepted if it matches exactly what is asked for.
+    + `edit`: In most cases you can start typing right away. In some cases, for example if you have not completed a previous optional task, you may first need to click this button before you can modify the code.
+    + `check`: Runs the code and checks your solution.
+    + `hint`: Shows an automated hint that points you in the right direction.
+    + `solution`: Reveals the sample solution for the current task.
+    + `data`: Displays the data used in the task.
+    + `run chunk`: Runs the code without checking whether it is correct.
+    + `original code`: Restores the original code if you have accidentally overwritten part of the chunk.
+
+- **Info Boxes:** They contain additional background information and detailed explanations and can be opened by clicking on them.
+
+- **Awards:** You receive them when you successfully complete tasks.
+
+- **Quizzes:** They help you better understand the data and regression results.
+
+
+Once you have finished an exercise, click `Go to next exercise...` to continue.
+
+
+## Exercise 1 -- Overview of Data 
+
+Before we begin the analysis, let us take a look at the underlying data, which come from several sources. Scientific publication data are obtained from [Elsevier's Scopus database](https://www.elsevier.com/products/scopus), which contains detailed records on peer-reviewed journal articles and conference proceedings. Each publication includes information on authors and their institutional affiliations, which allows the identification of firm-level scientific output. Analyst coverage data come from the [Institutional Brokers' Estimate System (I/B/E/S)](https://www.lseg.com/en/data-analytics/financial-data/company-data/ibes-estimates), a widely used database tracking earnings estimates by financial analysts. Financial and accounting information is drawn from [Compustat](https://www.marketplace.spglobal.com/en/datasets/compustat-financials-(8)) and the [Center for Research in Security Prices (CRSP)](https://www.crsp.org/). Additional sources include [Thomson's 13F database](https://wrds-www.wharton.upenn.edu/pages/get-data/thomson-reuters/) for institutional ownership data and patent data from Stoffman et al. (2022).
+
+The sample covers U.S. publicly traded firms that are active in R&D, defined as having at least one patent and at least one year of positive R&D spending during the sample period. The treatment sample consists of 760 firms affected by 43 brokerage merger and closure events, while the control sample comprises all remaining R&D-active firms in the Compustat/CRSP universe that were not covered by the relevant brokers.
+
+## Exercise 1.1 -- Load and Explore Data
+
+The authors have made several datasets available for replication, all provided in Stata format (`.dta`). For this problem set, these datasets have been reduced to the variables relevant for our analysis, so that each exercise works with a focused set of columns. We first need to import the data into our environment. Fortunately, the `haven` package makes that straightforward by offering the `read_dta()` function, which reads `.dta` files and converts them into a standard R data frame. The info box below gives a brief introduction to the package and its usage.
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("Loading Stata files in R with read_dta()")
+```
+
+**Task:** Load the `haven` package and import the file `df1.dta`. Store the dataset in the variable `dat`.
+
+```{r "3_2"}
+# Enter your code here.
+```
+
+
+Once the dataset has been imported into `dat`, a good first step is to look at the actual data. The `head()` function displays the first six rows of a data frame and gives a quick impression of the variables it contains and the kind of values they take.
+
+**Task:** Display the first six rows of `dat` using `head()`.
+
+```{r "3_3"}
+# Enter your code here.
+```
+
+**Identifiers**
+
+
+Quiz: Think about which columns are needed together to uniquely identify a single row in the dataset.
+
+(1) FIRM_ID
+(2) FYEAR
+(3) E_ID
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_row_id")
+```
+
+The reason all three identifiers are required becomes clear once we look at what each of them captures:
+
+- `FIRM_ID` uniquely identifies each company in the sample.
+- `FYEAR` records the fiscal year of the observation, so the same firm appears in several rows across time.
+- `E_ID` links the observation to a specific brokerage merger or closure event. A firm can be affected by more than one event over the sample period and may even serve as a treated firm for one event and as a control firm for another. The same firm and year can therefore appear more than once, each time attached to a different event.
+
+**Scientific output**
+
+Another column worth a closer look is `PUB`. It contains the number of scientific publications in academic journals attributed to a firm in a given year. The authors focus on journal publications because a large share of firms' R&D output is disclosed this way, and such publications both reflect R&D productivity and signal a firm's research capabilities through peer review and journal rankings (Dasgupta & David, 1994).
+
+For the empirical analysis, however, the authors do not work with this raw count directly. Instead, they use the transformed variable `LN_PUB`, which serves as the main dependent variable throughout this problem set.
+
+
+Quiz: Look again at the `head()` output above and compare the columns `PUB` and `LN_PUB`. How was `LN_PUB` obtained from `PUB`?
+
+(1) By taking the natural logarithm of PUB directly, that is ln(PUB)
+(2) By taking the natural logarithm of one plus PUB, that is ln(1 + PUB)
+(3) By taking the natural logarithm of PUB minus one, that is ln(PUB - 1)
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_lnpub_transform")
+```
+
+**Information asymmetry**
+
+The authors define information asymmetry as differences in information among investors. This covers both how much individual investors know about a firm and what fraction of investors know about it at all.
+
+Two variables in the dataset speak directly to this concept. The first is `BASPRD`, the bid-ask spread, computed as the average daily difference between the ask and bid prices, scaled by their midpoint. It is a typical proxy for information asymmetry (Kelly & Ljungqvist, 2012). The second is `COV`, the number of financial analysts issuing earnings forecasts for the firm in a given year.
+
+The remaining variables are **control variables** and are explained in the following info box:
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("Control variables")
+```
+
+**Compact overview**
+
+Having gone through the variables individually, we can now look at them collectively. A good starting point for any empirical analysis is a compact overview of the entire dataset, showing how each variable is distributed, what its typical values are, and how many observations are missing.
+
+The `skimr` package provides this. Its `skim()` function summarizes every column in a single call and presents the result in a structured form. The info box below explains its most useful output fields.
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("skim(): compact overviews of datasets")
+```
+
+**Task:** Load the `skimr` package and apply `skim()` to `dat` to obtain a compact overview of all variables. Then use the output to answer the quiz questions below.
+```{r "3_5"}
+# Enter your code here.
+```
+
+Quiz: Over which time period are the firms observed in the dataset?
+
+(1) 2002 to 2008
+(2) 1997 to 2014
+(3) 1990 to 2007
+(4) 2000 to 2013
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_time_range")
+```
+
+
+Quiz: Compare the mean and the median of `PUB`, and look at the `hist` column. What does this tell you about the distribution of publications across firms?
+
+(1) Publications are roughly evenly distributed across firms
+(2) Most firms have few publications, while a small number have very many (right-skewed)
+(3) Most firms have very many publications, while a small number have few (left-skewed)
+(4) The distribution is symmetric around its mean
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_pub_skew")
+```
+
+
+## Exercise 1.2 -- Look at a Specific Event
+
+Before turning to the formal analysis, it is worth looking at a single firm-event combination in detail. According to the authors, treated firms should increase their scientific publication output after losing analyst coverage, and this jump should be particularly pronounced between the year just before and the year just after the event.
+
+**A concrete firm-event example**
+
+To make this concrete, we pick one event (`E_ID == 6`) and one of the firms it affected (`FIRM_ID == 786`) and plot the firm's annual publication count around the shock. The dataset is anonymized, so these identifiers carry no names on their own. To give the pair a more tangible interpretation, we assume throughout this exercise that `E_ID == 6` corresponds to the acquisition of the brokerage house Tucker Anthony Sutro by the Royal Bank of Canada. The deal was announced in August 2001 for 625 million U.S. dollars, and Tucker Anthony Sutro was subsequently merged into the bank's Dain Rauscher brokerage (New York Times, 2001). Along the same lines, we take `FIRM_ID == 786` to be a mid-sized biotechnology firm that lost coverage in this event. Both assumptions serve illustrative purposes only.
+
+**Slicing the dataset**
+
+For the plot we do not need the full dataset. Two things have to happen. First, out of all firm-year rows we keep only those belonging to this one firm in this one event. Second, out of all columns we keep only the two that the plot uses, the fiscal year and the publication count. In `dplyr` these are two separate operations. `filter()` picks **rows** by a condition, and `select()` picks **columns** by name. Because the output of the first is the input of the second, we can chain them into a single readable pipeline. The info box below explains both functions and the chaining operator that connects them.
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("filter() and select(): subsetting rows and columns")
+```
+
+**Task:** Complete the code below so that it keeps only the rows for our biotechnology firm in the Tucker Anthony event and only the columns `PUB` and `FYEAR`. Store the result in `dat_firm_event`.
+
+```{r "4_2"}
+# Load data for the new exercise
+dat <- read_dta("df1.dta")
+library(dplyr)
+
+dat_firm_event <- dat %>%
+  filter(E_ID == ___, ___ == ___) %>%
+  select(___, ___)
+```
+
+With `dat_firm_event` in shape, we can now visualize the biotechnology firm's annual publication output around the 2001 Tucker Anthony event. The package of choice is `ggplot2`, which builds plots layer by layer following the so-called *grammar of graphics*. You start with a dataset and an *aesthetic mapping* (which variable goes on which axis) and then add geometric layers (lines, points, reference lines), scales, annotations, labels, and a theme, each connected with a `+`. 
+The info box below walks through every component of the plot in turn. For a deeper dive into `ggplot2`, the official documentation can be found [here](https://ggplot2.tidyverse.org/reference/index.html).
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("Anatomy of the ggplot() call below")
+```
+
+**Task:** Fill in the aesthetic mapping. `FYEAR` belongs on the x-axis, and the publication count `PUB` on the y-axis. Then press `check`.
+
+```{r "4_3"}
+library(ggplot2)
+
+ggplot(dat_firm_event, aes(x = ___, y = ___)) +
+  geom_line(linewidth = 1, color = "#2C3E50", alpha = 0.7) +
+  geom_point(size = 2.5, color = "#1F77B4") +
+  geom_vline(xintercept = 2001, linetype = "dashed",
+             color = "#D62728", linewidth = 0.8) +
+  annotate(
+    "label",
+    x = 2001, y = 70,
+    label = "Coverage shock (2001)",
+    angle = 90, vjust = -0.3,
+    size = 3.5, fill = "white"
+  ) +
+  scale_x_continuous(breaks = seq(1998, 2004, 1)) +
+  labs(
+    x = "Fiscal Year",
+    y = "Publications",
+    title = "Publications over Time",
+    subtitle = "The 2001 Tucker Anthony coverage shock"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    plot.title = element_text(face = "bold"),
+    axis.title = element_text(face = "bold")
+  )
+```
+
+
+
+The picture is striking. The firm's publication output is relatively flat in the three years before the brokerage merger and rises noticeably afterward, which is the pattern the disclosure hypothesis predicts.
+Of course, one firm in one event is **no** proof of causality. The rise might have nothing to do with the loss of coverage. A biotechnology firm that starts a new research program or enters a new phase in its drug development naturally produces more scientific output around the same time, and if such a shift happened to coincide with 2001, it would show up in the plot just the same. To establish whether there is a **causal effect**, we need to rule out such alternative explanations, which we will do in the following exercise.
+
+
+## Exercise 2 -- Difference-in-Differences Regression
+
+With a feel for the data in hand, we now turn to the paper's central question of whether a loss of analyst coverage causes firms to publish more. Answering a *causal* question like this is harder than it first appears, because it requires a design that isolates the shock to coverage from everything else that makes firms differ. This is the job of the **Difference-in-Differences (DiD)** approach, which this exercise builds up step by step.
+
+- **2.1 The Limits of a Simple Regression.** We start with the most obvious approach, a plain OLS regression of publications on coverage, and use omitted variable bias and a causal graph to see why its result cannot be read causally.
+- **2.2 The DiD Idea in a Single Event.** Narrowing the view to a single event, we compute the difference-in-differences by hand from four group means and show that a regression returns the same number. This exposes the core logic of the estimator and the parallel trends condition it relies on.
+- **2.3 The DiD Regression on the Full Sample.** We translate the manual calculation into a fixed effects regression that handles all firms and events at once, add time-varying controls, and put the parallel trends assumption to the test in an event study.
+
+
+## Exercise 2.1 -- The Limits of a Simple Regression
+
+The most direct way to answer the question "Do firms publish more when they face higher information asymmetry?" would be to regress the number of scientific publications on the number of analysts following the firm. Let us try this. We first load the data and then run a simple OLS regression of `LN_PUB` on `COV`.
+
+If you want a quick reminder of how to run and read an OLS regression in R, expand the box below.
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("OLS regression in R")
+```
+
+**Task:** Regress `LN_PUB` on `COV` by filling in the variables in the corresponding gaps.
+```{r "6_3"}
+library(haven)
+
+# Load the data
+dat <- read_dta("df1.dta")
+
+reg_naive <- lm(___ ~ ___, data = dat)
+summary(reg_naive)
+
+```
+
+
+Quiz: Look at the `summary()` output. What is the estimated coefficient on `COV` (rounded to three decimal places), and does its sign match what we expect based on the paper's hypothesis?
+
+(1) Coefficient 0.107 — sign matches our expectation
+(2) Coefficient 0.107 — sign does not match our expectation
+(3) Coefficient 0.720 — sign matches our expectation
+(4) Coefficient 0.720 — sign does not match our expectation
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_naive_coef")
+```
+
+### Confounders and bias
+
+The answer lies in **omitted variable bias**. The naive regression leaves out firm characteristics that drive both analyst coverage and publication output. The most obvious one is plain firm size, which plausibly relates both to how many analysts follow a firm and to how much research the firm produces. When a variable like this is left out of the regression, its influence does not disappear. It is absorbed into the error term, and because it is correlated with `COV`, it contaminates the coefficient we care about.
+
+Wooldridge (2013, chapter 3.3) makes this precise by contrasting two regressions. The model we *should* estimate is the **long model**, which includes the omitted variable:
+
+$$\texttt{LN_PUB} = \beta_0 + \beta_1\,\texttt{COV} + \beta_2\, \texttt{LN_AT} + u$$
+
+where `LN_AT` is the natural logarithm of total assets, the paper's measure of firm size.
+
+For the rest of this section we take the long model to be correctly specified. This means that `LN_AT` is a relevant confounder ($\beta_2 \neq 0$) and that, once it is included, nothing left in the error term $u$ is correlated with `COV`. Under this assumption $\beta_1$ is the true effect we want.
+
+What we actually estimated in the previous step is the **short model**, which drops `LN_AT`:
+
+$$\texttt{LN_PUB} = \tilde\beta_0 + \tilde\beta_1\,\texttt{COV} + v$$
+The tilde marks the short-model coefficient as coming from an underspecified regression. Wooldridge shows that the two slope coefficients are linked by
+
+$$E(\widehat{\tilde\beta}_1) = \beta_1 + \beta_2\,\tilde\delta_1$$
+
+so on average the short-model estimate equals the long-model coefficient plus a **bias term** $\beta_2\,\tilde\delta_1$. This term is the product of two pieces. The first, $\beta_2$, measures how firm size relates to publications in the long model. The second, $\tilde\delta_1$, measures how the omitted variable and the regressor move together. It is the covariance between `LN_AT` and `COV` divided by the variance of `COV`, so its sign is simply the sign of the covariance. The **sign of the bias** can then be determined from the following table.
+
+<table style="border-collapse: collapse; margin: 1em auto; font-size: 15px; text-align: center;">
+  <tr>
+    <th style="border: 1px solid #aaa; padding: 8px 16px; background: #f2f2f2;"></th>
+    <th style="border: 1px solid #aaa; padding: 8px 16px; background: #f2f2f2;">\(\tilde\delta_1 > 0\) <br/><span style="font-weight: normal; font-size: 13px; color: #555;">size &amp; coverage move together</span></th>
+    <th style="border: 1px solid #aaa; padding: 8px 16px; background: #f2f2f2;">\(\tilde\delta_1 < 0\) <br/><span style="font-weight: normal; font-size: 13px; color: #555;">size &amp; coverage move apart</span></th>
+  </tr>
+  <tr>
+    <th style="border: 1px solid #aaa; padding: 8px 16px; background: #f2f2f2;">\(\beta_2 > 0\) <br/><span style="font-weight: normal; font-size: 13px; color: #555;">bigger firms publish more</span></th>
+    <td style="border: 1px solid #aaa; padding: 8px 16px; background: #e6f0ff; font-weight: bold;">positive bias</td>
+    <td style="border: 1px solid #aaa; padding: 8px 16px;">negative bias</td>
+  </tr>
+  <tr>
+    <th style="border: 1px solid #aaa; padding: 8px 16px; background: #f2f2f2;">\(\beta_2 < 0\) <br/><span style="font-weight: normal; font-size: 13px; color: #555;">bigger firms publish less</span></th>
+    <td style="border: 1px solid #aaa; padding: 8px 16px;">negative bias</td>
+    <td style="border: 1px solid #aaa; padding: 8px 16px; background: #e6f0ff; font-weight: bold;">positive bias</td>
+  </tr>
+</table>
+
+Start with $\beta_2$. Larger firms run bigger research operations, so it is reasonable to **assume that firm size enters the publication equation positively, $\beta_2 > 0$**.  
+We treat this as an assumption rather than estimating it, because the point of the exercise is to predict what the long model will show before we run it. The sign of $\tilde\delta_1$ needs no assumption at all. It follows from the two regressors alone, so we can compute it directly.
+
+**Task:** Use the `cov()` function to compute the covariance between firm size and analyst coverage.
+```{r "6_4"}
+# Enter your code here.
+```
+
+
+Quiz: Given this sign of the covariance, how does the short-model coefficient on `COV` relate to the long-model one, and what happens once `LN_AT` enters the regression?
+
+(1) The bias is positive, so the short-model coefficient is biased upward and adding LN_AT should pull it down.
+(2) The bias is positive, so the short-model coefficient is biased upward and adding LN_AT should push it up further.
+(3) The bias is negative, so the short-model coefficient is biased downward and adding LN_AT should push it up.
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_lnat_sign")
+```
+
+Let us put this to the test by estimating the long model and placing it next to the short model.
+
+**Task:** Run the code below to estimate both models and compare them side by side using `stargazer`.
+```{r "6_5",results='asis'}
+library(haven)
+library(lfe)
+library(stargazer)
+
+# Short model: COV only (re-estimated with felm for a clean comparison)
+reg_short <- felm(LN_PUB ~ COV, data = dat)
+
+# Long model: add firm size LN_AT
+reg_long  <- felm(LN_PUB ~ COV + LN_AT, data = dat)
+
+stargazer(reg_short, reg_long,
+          type = "html",
+          omit.stat = "ser",
+          model.numbers = FALSE,
+          column.labels = c("Short", "Long"))
+```
+
+Compare the `COV` row across the two columns. Adding `LN_AT` absorbs part of the firm-size channel that the short model had loaded onto `COV`, so the coefficient on `COV` moves down once size is controlled for, just as the bias formula predicted. Firm size is doing real work here, which is the first sign that the naive estimate was confounded.
+
+The long model also puts a number on something we could only assume before running it. The `LN_AT` row is the estimate of $\beta_2$, and it is positive and significant, so larger firms do publish more. The one piece of the bias argument we could not compute beforehand is therefore consistent with what the data show.
+
+Controlling for `LN_AT` is a step in the right direction, but it cannot be the whole solution. We have only removed the bias from *one observed* characteristic. Other firm traits could still drive both coverage and publishing. We cannot put a variable we never measured into the regression. This is the fundamental limit of controlling for confounders one by one, and it is what motivates the research design the authors actually use.
+
+### Causal graphs
+
+The bias we just described is hard to see in a regression table, but it becomes immediately obvious once we draw it. As Huntington-Klein (2022, chapter 6.2) describes, computer scientist Judea Pearl developed a graphical language for this purpose in the mid-1990s. He wanted to make reasoning about cause and effect so transparent that even a computer could follow it. The result, the **Directed Acyclic Graph** or **DAG**, has since become a standard tool in causal inference.
+
+The idea is simple. Each variable is a node, and every arrow represents a direct causal influence running from one variable to another. *Acyclic* means that the graph contains no feedback loops, so following the arrows never leads back to the starting variable. DAGs are powerful because they reveal the structure of omitted variable bias at a glance. Whenever a third variable sends arrows into both the treatment and the outcome, it opens a *backdoor path*, and a naive regression mixes the association running along this path with the causal effect. You can find more on causal graphs at [The Effect: An Introduction to Research Design and Causality](https://theeffectbook.net/ch-CausalDiagrams.html).
+
+**Task:** Run the code below to produce the causal graph for our setting.
+```{r "6_6"}
+library(dagitty)
+library(ggdag)
+library(ggplot2)
+
+dag <- dagitty('dag {
+  FirmSize [pos="1,2"]
+  COV      [pos="0,1"]
+  LN_PUB   [pos="1,0"]
+  FirmSize -> COV
+  FirmSize -> LN_PUB
+  COV      -> LN_PUB
+}')
+
+tidy_dag <- tidy_dagitty(dag)
+
+ggplot(tidy_dag, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges_link(
+    edge_width = 1.1,
+    arrow = grid::arrow(length = grid::unit(14, "pt"), type = "closed")
+  ) +
+  geom_dag_point(size = 22) +
+  geom_dag_text(size = 3.5) +
+  annotate("text", x = 0.35, y = 1.55, label = "+", color = "steelblue", size = 7, fontface = "bold") +
+  annotate("text", x = 1.10, y = 1.10, label = "+", color = "steelblue", size = 7, fontface = "bold") +
+  annotate("text", x = 0.35, y = 0.45, label = "?", color = "steelblue", size = 7, fontface = "bold") +
+  theme_dag() +
+  labs(title = "Causal Graph: Omitted Variable Bias")
+```
+
+
+In the next exercise we turn to the DiD method.
+
+
+## Exercise 2.2 -- The DiD Idea in a Single Event
+
+`Exercise 2.1` left us with a problem. Analyst coverage and publications are entangled with firm characteristics we cannot fully observe, so a plain regression of one on the other cannot be read causally. The difference-in-differences design escapes that impasse by exploiting the brokerage shocks. To make the idea easy to grasp, this exercise deliberately narrows the view to a single merger event and works it through from a plot to a regression. `Exercise 2.3` then puts the design to work on the full dataset, pooling all the events at once.
+
+The dataset for this and the following exercises contains three additional columns. `TREATED` is 1 for firms that lost coverage in a given event and 0 for the comparison firms. `POST` is 1 for the years after the event and 0 for the years before. Their product `TREATED_X_POST` is therefore 1 only for treated firms in the post-period, that is, the firm-years in which the coverage loss is in force.
+
+### One event under the microscope
+
+We focus on event 24 (`E_ID == 24`), which took place in 2005. The firms affected by it lost analyst coverage from 2006 onward, and firms untouched by the event serve as controls. We treat 2002 to 2004 as the pre-period and 2006 to 2008 as the post-period and set the event year 2005 aside as a transition year. Following just these two groups through time gives the clearest view of the difference-in-differences logic.
+
+Building that view takes two objects. The first, `event24`, is the sample we work with for the rest of this exercise, event 24 restricted to the six analysis years. The second, `avg_by_year`, collapses `event24` to one average of `LN_PUB` per group and year. We also group by `POST`, even though the year already determines the period. Carrying the period label along is what later lets the plot break each group's line at the event instead of running it straight through.
+
+**Task:** Restrict the data to event 24 and compute the group-year averages by filling in the gaps.
+```{r "7_1"}
+library(haven)
+library(dplyr)
+
+dat <- read_dta("df2.dta")
+
+# Event 24 only
+event24 <- dat %>%
+  filter(E_ID == ___, FYEAR %in% c(2002, 2003, 2004, 2006, 2007, 2008))
+
+# One average of LN_PUB per group and year
+# .groups = "drop" returns an ungrouped table, otherwise summarise() keeps TREATED and POST
+avg_by_year <- event24 %>%
+  group_by(___, POST, ___) %>%
+  summarise(mean_lnpub = mean(___), .groups = "drop")
+
+avg_by_year
+
+```
+
+The result has twelve rows, one per group and year, and `POST` records on which side of the event each row falls.
+
+For the figure we need one more object. `avg_by_period` collapses `event24` all the way down to four numbers, the average of `LN_PUB` in each combination of `TREATED` and `POST`. These enter the plot as four dashed horizontal segments, and we will come back to them shortly, because they already contain the entire difference-in-differences.
+
+**Task:** Run the code below to plot the yearly averages together with the four period averages.
+```{r "7_2",fig.width=10, fig.height=5}
+library(dplyr)
+library(ggplot2)
+
+# The four period averages that make up the 2x2 comparison
+avg_by_period <- event24 %>%
+  group_by(TREATED, POST) %>%
+  summarise(level = mean(LN_PUB), .groups = "drop") %>%
+  mutate(xstart = ifelse(POST == 0, 2002, 2006),
+         xend   = ifelse(POST == 0, 2004, 2008))
+
+ggplot(avg_by_year, aes(x = FYEAR, y = mean_lnpub,
+                   color = factor(TREATED, levels = c(1, 0)))) +
+  # pre / post period shading
+  annotate("rect", xmin = 2001.6, xmax = 2004.4, ymin = -Inf, ymax = Inf,
+           fill = "grey50", alpha = 0.06) +
+  annotate("rect", xmin = 2005.6, xmax = 2008.4, ymin = -Inf, ymax = Inf,
+           fill = "grey50", alpha = 0.06) +
+  # event marker and period labels
+  geom_vline(xintercept = 2005, linetype = "22", color = "grey45", linewidth = 0.4) +
+  annotate("text", x = 2005, y = 3.95, label = "broker disappears (2005)",
+           size = 3, color = "grey35") +
+  annotate("text", x = 2003, y = 0.72, label = "PRE",
+           size = 3, color = "grey45", fontface = "bold") +
+  annotate("text", x = 2007, y = 0.72, label = "POST",
+           size = 3, color = "grey45", fontface = "bold") +
+  # four dashed period-average segments
+  geom_segment(data = avg_by_period,
+               aes(x = xstart, xend = xend, y = level, yend = level,
+                   color = factor(TREATED, levels = c(1, 0))),
+               linetype = "dashed", linewidth = 0.5, alpha = 0.55, inherit.aes = FALSE) +
+  # the group lines break at the event via the TREATED-by-POST grouping
+  geom_line(aes(group = interaction(TREATED, POST)), linewidth = 1) +
+  geom_point(size = 2.6) +
+  scale_color_manual(values = c("1" = "#00BFC4", "0" = "#F8766D"),
+                      labels = c("1" = "Treated", "0" = "Control")) +
+  scale_x_continuous(breaks = c(2002, 2003, 2004, 2006, 2007, 2008),
+                     limits = c(2001.5, 2008.6)) +
+  scale_y_continuous(breaks = seq(1, 3.5, by = 0.5)) +
+  labs(title = "Publications around brokerage event 24",
+       x = "Fiscal year", y = "Average log publications",
+       color = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = c(0.02, 0.5),
+        legend.justification = c(0, 0.5))
+```
+
+Those four dashed segments show the numbers we need. Crossing `TREATED` and `POST` sorts the sample into four cells, and we write the mean of each cell as $\bar{y}$, with the subscript $k$ for the treated and $U$ for the untreated group and the superscript for the period.
+
+<table style="border-collapse: collapse; margin: 1em auto; font-size: 15px; text-align: center;">
+  <tr>
+    <th style="border: 1px solid #aaa; padding: 6px 40px; background: #f2f2f2;"></th>
+    <th style="border: 1px solid #aaa; padding: 6px 40px; background: #f2f2f2;">Pre <span style="font-weight: normal; font-size: 13px; color: #555;">(POST = 0)</span></th>
+    <th style="border: 1px solid #aaa; padding: 6px 40px; background: #f2f2f2;">Post <span style="font-weight: normal; font-size: 13px; color: #555;">(POST = 1)</span></th>
+  </tr>
+  <tr>
+    <th style="border: 1px solid #aaa; padding: 6px 40px; background: #f2f2f2;">Treated <span style="font-weight: normal; font-size: 13px; color: #555;">(TREATED = 1)</span></th>
+    <td style="border: 1px solid #aaa; padding: 6px 40px;">\(\bar{y}_k^{\,pre}\)</td>
+    <td style="border: 1px solid #aaa; padding: 6px 40px;">\(\bar{y}_k^{\,post}\)</td>
+  </tr>
+  <tr>
+    <th style="border: 1px solid #aaa; padding: 6px 40px; background: #f2f2f2;">Control <span style="font-weight: normal; font-size: 13px; color: #555;">(TREATED = 0)</span></th>
+    <td style="border: 1px solid #aaa; padding: 6px 40px;">\(\bar{y}_U^{\,pre}\)</td>
+    <td style="border: 1px solid #aaa; padding: 6px 40px;">\(\bar{y}_U^{\,post}\)</td>
+  </tr>
+</table>
+
+The vertical distance between a group's two dashed segments is its change over time. For the treated group that change is $\bar{y}_k^{\,post} - \bar{y}_k^{\,pre}$, but part of it need not have anything to do with the shock, as it may simply reflect a trend affecting all firms in these years. The control group's change $\bar{y}_U^{\,post} - \bar{y}_U^{\,pre}$ is our estimate of that common trend, because those firms experienced everything the treated firms did except the coverage loss. Subtracting the control change from the treated change strips out the common movement and leaves the part specific to treatment. That difference of two differences is the $2 \times 2$ DiD estimator (Cunningham, 2021, chapter 9.2.2).
+
+$$\widehat{\delta}^{\,2\times 2}_{kU} = \underbrace{\left(\bar{y}_k^{\,post} - \bar{y}_k^{\,pre}\right)}_{\text{treated change}} - \underbrace{\left(\bar{y}_U^{\,post} - \bar{y}_U^{\,pre}\right)}_{\text{control change}}$$
+The `avg_by_period` table built for the plot already holds these four averages in its `level` column, one row per `TREATED` and `POST` combination. We can therefore assemble the estimate directly from it.
+
+**Task:** Pull the four group averages out of `avg_by_period` and combine them into the difference-in-differences, subtracting the control change from the treated change.
+
+```{r "7_3"}
+library(dplyr)
+
+y_treat_post <- avg_by_period %>% filter(TREATED == 1, POST == 1) %>% pull(level)
+y_treat_pre  <- avg_by_period %>% filter(TREATED == 1, POST == 0) %>% pull(level)
+y_ctrl_post  <- avg_by_period %>% filter(TREATED == 0, POST == 1) %>% pull(level)
+y_ctrl_pre   <- avg_by_period %>% filter(TREATED == 0, POST == 0) %>% pull(level)
+
+did <- (___ - ___) - (___ - ___)
+did
+```
+
+The treated group's average log publications rose by roughly 0.29, while the control group's rose by only about 0.17, leaving a difference-in-differences of about 0.12. Because the loss of coverage is plausibly exogenous, this suggests that firms facing higher information asymmetry after the shock raised their publication output relative to the controls.
+
+### The same estimate from a regression
+Computing the estimate by hand made every step visible, but it leaves us with a bare number and no sense of how precisely it is measured. A regression delivers both at once. Regressing `LN_PUB` on `TREATED`, `POST`, and their product `TREATED_X_POST` returns the difference-in-differences as the coefficient on the product. That is not a coincidence, and the box below explains why.
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("Where the four coefficients go")
+```
+
+**Task:** Verify this. Regress `LN_PUB` on `TREATED`, `POST`, and their interaction `TREATED_X_POST`, and check that the interaction coefficient matches the value you computed by hand.
+
+```{r "7_4"}
+did_ols <- lm(LN_PUB ~ TREATED + POST + ___, data = ___)
+summary(did_ols)
+```
+
+The interaction coefficient reproduces the number we assembled by hand. Likewise, the `POST` coefficient contains nothing new. It equals the change the control firms experienced between the two periods, the increase of about 0.17 from the manual calculation. That leaves `TREATED` as the only slope we have not yet interpreted.
+
+
+Quiz: What does the `TREATED` coefficient measure, and what does a value clearly different from zero imply for the design?
+
+(1) It measures the effect of the coverage loss on the treated firms, so it should come out close to the interaction coefficient.
+(2) It measures how far apart the two groups already were before the shock, and a nonzero value is no threat to the design, because the difference-in-differences compares changes and not levels.
+(3) It measures how far apart the two groups already were before the shock, and a nonzero value breaks the design, because valid control firms have to start from the same publication level.
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_did_treated_coef")
+```
+
+### When does the estimate capture the causal effect?
+
+To see what is required to identify the causal effect, we re-express the four means as expected potential outcomes (Cunningham, 2021, chapter 9.3).
+Every firm has two potential outcomes. $Y^1$ is the publication outcome it would show if it lost coverage, and $Y^0$ is the outcome it would show if it did not. Only one of the two ever materializes. Treated firms in the post-period reveal $Y^1$, while the three remaining cells of the table reveal $Y^0$. Adding and subtracting the treated group's unobserved no-treatment outcome in the post-period, $E[Y^0_k \mid \text{post}]$, splits the estimator into two pieces:
+
+$$\widehat{\delta}^{\,2\times 2}_{kU} = \underbrace{E[Y^1_k \mid \text{post}] - E[Y^0_k \mid \text{post}]}_{\text{ATT}} + \underbrace{\Big( E[Y^0_k \mid \text{post}] - E[Y^0_k \mid \text{pre}] \Big) - \Big( E[Y^0_U \mid \text{post}] - E[Y^0_U \mid \text{pre}] \Big)}_{\text{non-parallel-trends bias}}$$
+
+The first term is the object we want, the **Average Treatment Effect on the Treated (ATT)**, which measures how much losing coverage changed publications for the firms that actually lost it. The estimator equals this ATT only if the second term is zero. That second term compares how the treated firms' outcome *would have evolved without the shock* with how the control firms' outcome did evolve. Setting it to zero is the **parallel trends assumption**:
+
+$$E[Y^0_k \mid \text{post}] - E[Y^0_k \mid \text{pre}] = E[Y^0_U \mid \text{post}] - E[Y^0_U \mid \text{pre}]$$
+
+Parallel trends can never be proven, because the decisive term $E[Y^0_k \mid \text{post}]$ is the publication output the treated firms *would have had without the shock*, a counterfactual the data never reveal once those firms are treated. What we can do instead is gather supporting evidence by checking whether treated and control firms moved in parallel *before* the shock. If they did, it is plausible that they would have continued to do so afterward.
+
+
+Quiz: Look again at the pre-period years 2002 to 2004. The two lines do not move in parallel, as the control average rises in every year while the treated average slips slightly. Suppose these movements had simply continued into the post-period. What would follow for the estimate of about 0.12?
+
+(1) Nothing follows. The difference-in-differences removes any trend the two groups share, and a pre-period movement is exactly such a trend.
+(2) The estimate would overstate the true effect, because part of the measured increase would already have been underway before the shock.
+(3) The estimate would understate the true effect, because the treated firms would first have to make up for that relative decline before any increase could show up in the comparison.
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_parallel_trends")
+```
+
+
+## Exercise 2.3 -- The DiD Regression on the Full Sample
+
+In `Exercise 2.2` we computed the difference-in-differences for a single event by hand and confirmed that a regression returns the same number. We now estimate the same difference-in-differences on the full sample of brokerage events at once. This exercise proceeds in four steps. We set up the specification, estimate it without controls, add time-varying controls, and finally check the parallel trends assumption on which the whole design rests.
+
+The specification is the following equation from the paper:
+
+$$Y_{i,e,t} = \alpha + \beta_1 POST_{e,t} + \beta_2 TREATED_{i,e} + \beta_3 (POST \times TREATED)_{i,e,t} + \gamma Z_{i,t} + \delta_t + \lambda_i + \theta_e + \varepsilon_{i,e,t}$$
+
+Here $i$ indexes the firm, $e$ the merger or closure event, and $t$ the year. The dependent variable $Y_{i,e,t}$ is `LN_PUB`. The terms $POST_{e,t}$, $TREATED_{i,e}$, and their interaction are the same as in the single-event regression from `Exercise 2.2`, with $\beta_3$ still the causal object of interest. The remaining terms are new. $Z_{i,t}$ is a set of time-varying control variables, added only in the second regression below. $\lambda_i$ and $\theta_e$ are firm and merger/closure event fixed effects that absorb time-invariant unobservable factors particular to a firm or a specific event, while $\delta_t$ is a year fixed effect that absorbs whatever moved all firms in a given year. Mechanically, each of them is a full set of dummy variables. There is one dummy per event, switched on for every observation belonging to that event, and likewise one per firm and one per year (Huntington-Klein, 2022, chapter 16). Finally, the standard errors are clustered at the firm level, an adjustment [Huntington-Klein (2022, chapter 13.3)](https://theeffectbook.net/ch-StatisticalAdjustment.html) motivates in detail.
+### From equation to `felm()`
+
+We estimate this regression with the `felm()` function from the `lfe` package, which the info box below explains.
+
+```{r eval=FALSE}
+# Run for additional info in the Viewer pane
+info("Estimating the regression with felm()")
+```
+
+**Task:** Estimate the regression from the specification above for `LN_PUB`. Store the model in `did_pub`.
+
+```{r "8_2"}
+library(lfe)
+library(haven)
+
+# Load the data because it's a new exercise 
+dat <- read_dta("df2.dta")
+
+did_pub <- felm( ___ ~ TREATED_X_POST + POST + TREATED | ___ + ___ + ___ | 0 | ___,
+                data = dat)
+summary(did_pub)
+```
+
+The regression output reports a coefficient of about 0.119 on `TREATED_X_POST`.
+
+Before reading that number, one feature of the outcome deserves attention. The dependent variable is $\ln(1 + \texttt{PUB})$, but the authors interpret their coefficients as percentage changes in publications, which is the reading that $\ln(\texttt{PUB})$ would justify. The two transformations are close when publication counts are large, but they diverge once the data contain zeros, and zero-publication years do occur in this sample, as the `head()` output in `Exercise 1.1` showed. [Chen and Roth (2024)](https://arxiv.org/abs/2212.06080) show that in this case the constant 1 added before taking the logarithm is not innocuous. The estimate then depends on the units in which the outcome is measured, and the coefficient no longer translates cleanly into a percentage.
+
+This problem set adopts the authors' reading so that every number stays comparable to the published estimates. The caveat is stated once here and not repeated below.
+
+
+Quiz: Which statement interprets this estimate correctly, given that $e^{0.119} - 1 \approx 0.126$?
+
+(1) After the shock, treated firms published about 0.119 more articles per year than control firms did.
+(2) Treated firms raised their publication output by about 12.6% more than control firms did over the same period.
+(3) In the years after the shock, treated firms published about 12.6% more articles than control firms.
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_2_3_interpretation")
+```
+
+### Adding time-varying control variables
+
+The fixed effects already absorb everything about a firm that stays constant over time, so adding a time-invariant characteristic as a control would be redundant. This raises the question of whether control variables are needed at all. The logic of good and bad controls (Huntington-Klein, 2022, chapter 18.2.5) suggests a selective answer. What could still matter are time-varying characteristics. If one of them happens to move at the same moment as the treatment, it can blur the comparison between treated and control firms, and the estimate would then mix the effect of the coverage shock with that of the moving characteristic. Holding such a variable constant keeps the comparison clean.
+
+The same source cautions that time-varying controls are not free of risk. If the treatment itself affects the later values of those covariates, controlling for them removes part of the effect we want to measure. The practical recommendation is therefore to report the results both with and without controls, so that readers can see whether the controls move the estimate. That is what we do here.
+
+**Task:** Run the chunk below. It estimates a second regression that adds the full set of control variables while keeping the same fixed effects and clustering, and stores it in `did_pub_ctrl`. The `stargazer()` call then prints both models in a single table, so you can compare the interaction coefficient without and with controls.
+
+```{r "8_3",results='asis'}
+library(stargazer)
+library(lfe)
+
+did_pub_ctrl <- felm(LN_PUB ~ TREATED_X_POST + POST + TREATED +
+                       LN_AT + RDTA + LN_AGE + PPETA + CAPEXTA + ROA +
+                       LEV + Q + DELAYCON + HINDEX + HINDEX2 + INSTOWN |
+                       FIRM_ID + FYEAR + E_ID | 0 | FIRM_ID,
+                     data = dat)
+
+stargazer(did_pub,
+          did_pub_ctrl,
+          type = "html",
+          digits = 4,
+          omit.stat = "ser",
+          model.numbers = FALSE,
+          column.labels = c("No controls", "Controls"))
+```
+
+The interaction coefficient barely moves when the controls enter, which suggests that the treatment effect does not merely reflect differential trends in the included firm characteristics.
+
+### Checking the parallel trends assumption
+
+The estimate we now have is causal only under the parallel trends assumption from `Exercise 2.2`. We cannot prove this, but we can look for evidence by asking whether the two groups already moved in parallel in the years *before* the shock. The pooled regression above cannot answer that question, since it collapses every year into a single before/after split. To see the individual years we need a specification that keeps them apart.
+
+A widely used approach for this is the **event study**. We estimate a separate coefficient for each year relative to the event, with the shock occurring in event year 0 (Cunningham, 2021, chapter 9.5):
+
+$$Y_{i,e,t} = \sum_{\tau \neq 0} \beta_\tau D^{\tau}_{i,e,t} + \delta_t + \lambda_i + \theta_e + \varepsilon_{i,e,t}$$
+
+Here $D^{\tau}_{i,e,t}$ switches on when treated firm $i$ is observed $\tau$ years from its shock in event $e$, and $\delta_t$, $\lambda_i$, and $\theta_e$ are the year, firm, and event fixed effects from the main specification. The coefficients for $\tau < 0$ are the **leads**, those for $\tau > 0$ the **lags**. The event year itself ($\tau = 0$) is the omitted reference. Each $\beta_\tau$ can be read as a difference-in-differences. It compares the change in $Y$ between the shock year ($\tau = 0$) and event year $\tau$ for treated firms with the same change for the control firms of that event. Two features of the resulting plot matter:
+ 
+- The **leads** should be close to zero. Precisely estimated zero coefficients before the shock are the visual signature of parallel pre-trends.
+- The **lags** trace out the treatment effect after the shock, including its size, its timing, and whether it persists or fades.
+
+This is the strategy the paper uses to defend its design, and we now reproduce it for publications, using a window from three years before to three years after each shock.
+
+In the data, the six event-time indicators are already prepared and named `TREATED_d_window1` through `TREATED_d_window6`, corresponding to event years $-3, -2, -1, +1, +2, +3$.
+
+**Task:** Estimate the event study for `LN_PUB` and store it in `mod_pub`.
+
+```{r "8_4",fig.width=10, fig.height=5}
+library(haven)
+library(lfe)
+
+df <- read_dta("df3.dta")
+mod_pub <- felm(LN_PUB ~ ___ | FIRM_ID + FYEAR + E_ID | 0 | FIRM_ID,
+                data = df)
+summary(mod_pub)
+```
+
+The regression gives us six coefficients with standard errors, but a table of numbers is hard to read. The whole point of an event study is the *picture*. We extract each coefficient together with its 90% confidence interval, map the six windows back to event years $-3$ to $+3$, and plot them.
+
+**Task:** One number is missing in the code below. The bands around each point estimate are two-sided 90% confidence intervals, so the remaining 10% of the probability mass is split evenly between the lower and upper tails. The function `qnorm(p)` returns the value below which the share `p` of the standard normal distribution lies. Replace `___` with the probability that yields the upper critical value of this interval.
+
+```{r "8_5"}
+library(ggplot2)
+
+# The six event-time indicators, in the order they entered the regression
+window_vars <- c("TREATED_d_window1", "TREATED_d_window2", "TREATED_d_window3",
+                 "TREATED_d_window4", "TREATED_d_window5", "TREATED_d_window6")
+
+# Extract coefficients and clustered standard errors
+coefs <- coef(mod_pub)[window_vars]
+ses   <- summary(mod_pub)$coefficients[window_vars, "Cluster s.e."]
+# Critical value of the standard normal distribution
+z90 <- qnorm(___)
+# window1..window6 correspond to event years -3,-2,-1,+1,+2,+3
+yr <- c(-3, -2, -1, 1, 2, 3)
+
+res_pub <- data.frame(
+  year  = yr,
+  est   = coefs,
+  ci_lo = coefs - z90 * ses,
+  ci_hi = coefs + z90 * ses
+)
+
+# Split leads (pre-shock) from lags (post-shock) for coloring
+res_pub$phase <- ifelse(res_pub$year < 0, "Pre-shock (leads)", "Post-shock (lags)")
+
+cols  <- c("Pre-shock (leads)" = "#E8A33D", "Post-shock (lags)" = "#3B4CC0")
+ylims <- c(-0.2, 0.2)
+
+ggplot(res_pub, aes(x = year, y = est, color = phase)) +
+  # pre / post window shading
+  annotate("rect", xmin = -3.5, xmax = -0.3, ymin = -Inf, ymax = Inf,
+           fill = "grey50", alpha = 0.06) +
+  annotate("rect", xmin = 0.3, xmax = 3.5, ymin = -Inf, ymax = Inf,
+           fill = "grey50", alpha = 0.06) +
+  # zero-effect reference and the omitted shock year
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50", linewidth = 0.4) +
+  geom_vline(xintercept = 0, linetype = "22", color = "grey55", linewidth = 0.4) +
+  annotate("text", x = 0, y = ylims[2], label = "shock year (baseline)",
+           angle = 90, hjust = 1, vjust = -0.4, size = 2.7, color = "grey45") +
+  # confidence intervals and point estimates
+  geom_linerange(aes(ymin = ci_lo, ymax = ci_hi), linewidth = 0.9) +
+  geom_point(shape = 21, fill = "white", stroke = 1.1, size = 2.8) +
+  scale_color_manual(values = cols, breaks = c("Pre-shock (leads)", "Post-shock (lags)")) +
+  scale_x_continuous(breaks = c(-3, -2, -1, 1, 2, 3),
+                     labels = c("-3", "-2", "-1", "+1", "+2", "+3")) +
+  scale_y_continuous(limits = ylims, breaks = seq(-0.2, 0.2, by = 0.1)) +
+  labs(x = "Year relative to coverage shock",
+       y = "Event-study coefficient",
+       subtitle = "Bars show 90% confidence intervals", color = NULL) +
+  theme_classic(base_size = 11) +
+  theme(
+    panel.grid.major.y = element_line(color = "grey92", linewidth = 0.3),
+    legend.position    = c(0.02, 0.97),
+    legend.justification = c(0, 1),
+    legend.background  = element_rect(fill = "white", color = NA),
+    axis.title         = element_text(size = 10),
+    axis.text          = element_text(size = 9),
+    plot.background    = element_rect(fill = "white", color = NA),
+    panel.background   = element_rect(fill = "white", color = NA)
+  )
+```
+The authors read this plot as support for their design. Across the years $-3$ to $-1$ none of the leads is statistically significant, and on that basis they conclude that they fail to invalidate the parallel trends assumption. Turning to the lags, they emphasize two things. The increase is permanent rather than temporary, and it is sharpest between year $-1$ and year $+1$. They read that quick response as consistent with their disclosure explanation, since a firm that starts publishing more in reaction to the shock will show it in the data within a year or two.
+
+One detail in the pre-period invites a second look. The three leads do not scatter randomly around zero but rise steadily from the earliest year to the baseline. Individually each is indistinguishable from zero, but a run of coefficients moving in one direction is a different object from three draws around a flat line, and the intervals here are wide enough to leave room for a pre-period drift. If that drift is real, part of the post-shock increase was already on its way before the shock arrived, and the estimator credits it to the treatment.
+
+
+## Exercise 3 -- Matching Estimator
+
+To further validate the baseline result, the authors re-estimate the DiD regression on a matched sample. They are concerned that groups differing on observable characteristics are likely to differ on unobservable ones as well, and that control variables in a linear regression may not adequately account for such differences, especially if the relationships are nonlinear. Matching mitigates this concern by restricting the control group to firms that closely resemble the treated firms before the event.
+
+The authors implement the matching in three steps:
+
+***
+
+<h4 style="margin-top: 1em; margin-bottom: 0.7em;"><u>Step 1: The propensity score</u></h4>
+
+The matching operates on *firm-event* observations, with all matching variables measured as of the year before the shock. The propensity score collapses these variables (total assets, investment in R&D, growth opportunities, bid-ask spreads, and pre-event publication growth) into a single number, the probability that a firm-event is treated given its characteristics.
+
+Let $D_i \in \{0,1\}$ indicate whether firm-event $i$ is treated, and let $X_i$ denote the vector of its matching variables. The authors estimate the treatment probability with a **logit model**:
+
+$$
+p(X_i) = \Pr(D_i = 1 \mid X_i) = \frac{1}{1 + e^{-X_i'\gamma}}
+$$
+
+The right-hand side is the **logistic function** applied to the linear index $X_i'\gamma$. A plain linear combination of the matching variables could take any real value, so it cannot serve directly as a probability. The logistic function fixes this by squeezing $X_i'\gamma$ into the interval between 0 and 1, while preserving its ranking, so that a higher index always maps to a higher probability (Taboga, 2021). 
+
+The coefficient vector $\gamma$ itself is unknown and has to be estimated from the data. This is done by **maximum likelihood**, which chooses the values of $\gamma$ that make the observed pattern of treated and control firm-events as probable as possible under the model (Taboga, 2021).
+
+
+<h4 style="margin-top: 2.4em; margin-bottom: 0.7em;"><u>Step 2: Nearest-neighbor matching with replacement</u></h4>
+
+For each treated firm-event $t$, a control firm-event $c$ qualifies as a potential neighbor only if its propensity score lies close enough to $\hat{p}(X_t)$:
+
+$$
+\big| \hat{p}(X_c) - \hat{p}(X_t) \big| \le 0.005
+$$
+
+This maximum distance of 0.005 is the **caliper**. Among the control firm-events within the caliper, the five closest are retained as neighbors, or all of them if fewer than five qualify. Matching is done **with replacement**, so the same control firm-event may serve as a neighbor for several treated firm-events.
+
+<h4 style="margin-top: 2.4em; margin-bottom: 0.7em;"><u>Step 3: From matches to weights</u></h4>
+
+Matching not only selects firm-events but also assigns each a weight that determines its influence in the regression. Treated firm-events always carry weight $w_t = 1$. A control firm-event $c$ matched to treated firm-event $t$ contributes the share $1/m_t$ to $t$'s counterfactual, and its weight is the sum of these shares:
+
+$$
+w_c = \sum_{t : c \in \mathcal{N}(t)} \frac{1}{m_t}
+$$
+
+where $\mathcal{N}(t)$ is the set of neighbors of treated firm-event $t$ and $m_t = |\mathcal{N}(t)| \le 5$ is the number of neighbors actually found for $t$.
+
+***
+
+### Do the weights match our expectations?
+
+The authors provide the matched sample as a separate file, which contains a column named `weight` produced by the matching procedure. For the treated observations the weights are clear, but on the control side two questions remain open.
+
+
+Quiz: What is the smallest weight a control observation can carry?
+
+(1) 0.2
+(2) 0.5
+(3) There is no lower bound
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_weight_lower_bound")
+```
+
+
+Quiz: And what is the largest weight a control observation can carry in principle?
+
+(1) 1
+(2) 5
+(3) The number of treated firm-events
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_weight_upper_bound")
+```
+
+The `weight` column lets us check whether the realized weights are consistent with these bounds.
+
+**Task:** Calculate the minimum and the maximum weight for treated and control observations.
+
+```{r "9_1"}
+library(haven)
+library(dplyr)
+
+df4 <- read_dta("df4.dta")
+
+df4 %>%
+  group_by(___) %>%
+  summarise(
+    min_weight    = min(weight),
+    max_weight    = ___
+  )
+```
+
+For treated firm-events, minimum and maximum both equal 1, as expected. Among controls, the minimum is 0.2, so at least one treated firm-event was assigned the full set of five neighbors.
+
+The control maximum of 1.5 is more informative, since it exceeds the weight of any treated firm-event. Because a single share cannot exceed 1, this requires that the control was selected by at least two treated firm-events. Individual controls can thus carry considerably more weight than others, which is the price of matching each treated firm-event to its closest available controls.
+
+### Re-estimating the DiD on the matched sample
+
+The regression is the one from `Exercise 2.3`, with two changes. It runs on the matched sample, and the matching weights enter through the `weights` argument of `felm()`. Without them, every control would enter the regression with equal weight, regardless of how many treated firm-events selected it and how many neighbors each of them had. The distribution of the matching variables in the control group would then generally differ from that among the treated firm-events, undoing the balance the matching is designed to achieve.
+
+The baseline produced a coefficient of about 0.119 on `TREATED_X_POST`. Before re-estimating it, it is worth clarifying what a robustness check of this kind can and cannot show.
+
+
+Quiz: Suppose the matched-sample estimate had collapsed toward zero. What would that tell us about the baseline result?
+
+(1) That the matching procedure failed, since a matched sample has to reproduce the baseline estimate.
+(2) That the coverage shock does not raise information asymmetry after all.
+(3) That the baseline effect came from treated and control firms being different kinds of companies rather than from the shock itself.
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_3_robustness_logic")
+```
+
+**Task:** Estimate the weighted DiD regression with `LN_PUB` as the outcome and store it in `mod_pub`.
+
+```{r "9_2"}
+library(lfe)
+
+mod_pub <- felm(___ ~ TREATED_X_POST + POST + TREATED | FIRM_ID + FYEAR + E_ID | 0 | FIRM_ID,
+                weights = df4$___,
+                data    = df4)
+summary(mod_pub)
+```
+
+The coefficient on `TREATED_X_POST` is about 0.151 and significant at the 1% level. Since $e^{0.151} - 1 \approx 0.163$, treated firms raised their publication output by about 16.3% more than their matched controls did over the same period.
+Reading this as a causal effect still rests on the parallel trends assumption, which matching does not establish by itself. The assumption gains some support from the fact that publication growth from year $-3$ to $-1$ enters the propensity score, so treated firm-events and their matched controls should be approximately balanced in their pre-event publication trends.
+
+The effect persists, and even increases slightly, when treated firm-events are compared with controls that had similar propensity scores in the year before the shock. The baseline result is therefore unlikely to be driven by observable differences between treated and control firms.
+
+
+
+## Exercise 4 -- Heterogeneity Analysis
+
+So far, each difference-in-differences estimate has been an average across all treated firms. In `Exercise 2.3`, treated firms raised their publication output by about 12.6% more than control firms did. This average may conceal systematic differences in how firms respond to the shock. If the effect runs through information asymmetry, it should be largest where the shock raises that asymmetry the most and close to zero where the shock barely affects it.
+
+The same logic yields two further predictions. Closing an information gap is worth the effort mainly for firms that depend on external capital, and disclosure is attractive mainly for firms that can reveal their research without losing much to competitors. Finding all three patterns would be consistent with the information asymmetry mechanism the paper proposes.
+
+### Three splits, one specification
+
+Instead of estimating a single difference-in-differences coefficient for all firms, we split the sample by a firm characteristic and estimate a separate coefficient for each group. Each of the three splits is provided as a separate dataset in which every regressor appears in two versions, marked by the prefixes `high_` and `low_`. Each observation belongs to exactly one of the two groups, so one version equals the original variable and the other is zero.
+
+The treatment terms are therefore `high_TREATED_X_POST` and `low_TREATED_X_POST`. The first measures the difference-in-differences within the `high_` group, and the second within the `low_` group. Because the groups do not overlap, both coefficients can be estimated in a single regression. The controls also enter with group-specific coefficients, while the firm, year, and event fixed effects and the clustering by firm remain as in `Exercise 2.3`.
+
+### Split 1 -- how much the firm's information asymmetry rose
+
+The relative increase in `BASPRD` from the year before to the year after the shock serves as a proxy for how much the shock raised a firm's information asymmetry. In `df5.dta`, firms in the top tercile of this increase form the `high_` group and firms in the bottom tercile the `low_` group. The middle tercile is dropped, so the comparison is restricted to the two extremes.
+
+
+Quiz: Which coefficient do you expect to be larger in the information asymmetry split?
+
+(1) high_TREATED_X_POST
+(2) low_TREATED_X_POST
+(3) Neither; both are about the same size
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_4_split1")
+```
+
+### Split 2 -- whether the firm has a credit rating
+
+Rising information asymmetry tends to make external capital more expensive, which matters most for firms that depend on it. Derrien and Kecskés (2013) find that the decline in investment and financing after a loss of analyst coverage is stronger for financially constrained firms. Following Billett et al. (2017), a long-term credit rating proxies for the absence of such constraints, since a rated firm has access to multiple capital markets. In `df6.dta`, firms that hold a rating in the year before the shock form the `high_` group, and firms without one form the `low_` group.
+
+
+Quiz: Which coefficient do you expect to be larger in the credit-rating split?
+
+(1) high_TREATED_X_POST
+(2) low_TREATED_X_POST
+(3) Neither; both are about the same size
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_4_split2")
+```
+
+### Split 3 -- how expensive disclosure is for the firm
+
+The third split concerns the cost of publishing rather than its benefit. Patenting intensity, the ratio of granted patents to R&D expenditure in the year before the shock, serves as a proxy for this cost. A firm that patents heavily can describe its research in scientific publications while the invention itself remains legally protected, so its proprietary cost of publishing is low. In `df7.dta`, the top tercile of patenting intensity forms the `low_` group and the bottom tercile the `high_` group.
+
+
+Quiz: Which coefficient do you expect to be larger in the proprietary-cost split?
+
+(1) high_TREATED_X_POST
+(2) low_TREATED_X_POST 
+(3) Neither; both are about the same size
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_4_split3")
+```
+
+### Estimating the three splits
+
+**Task:** To avoid repeating the same specification three times, write a function that takes a dataset, assembles the formula, and returns the fitted model. Several gaps need to be filled.
+
+```{r "10_1"}
+library(lfe)
+library(haven)
+
+split_did <- function(dat) {
+  # Step 1: The control variable string is already provided
+  ctrl <- "high_LN_AT + high_RDTA + high_LN_AGE + high_PPETA + high_CAPEXTA + high_ROA + high_LEV + high_Q + high_DELAYCON + high_HINDEX + high_HINDEX2 + high_INSTOWN + low_LN_AT + low_RDTA + low_LN_AGE + low_PPETA + low_CAPEXTA + low_ROA + low_LEV + low_Q + low_DELAYCON + low_HINDEX + low_HINDEX2 + low_INSTOWN"
+  
+  # Step 2: Assemble the formula as a string with paste0(), then convert it to a formula object
+  formula_str <- paste0(
+    "LN_PUB ~ ___ + ___ + high_POST + low_POST + high_TREATED + low_TREATED + ",
+    ___,
+    " | FIRM_ID + FYEAR + E_ID | 0 | FIRM_ID"
+  )
+  
+  f <- as.formula(___)
+  
+  # Step 3: Fit the model with felm(), using the formula f and the data
+  felm(___ , data = ___)
+}
+
+did_spread <- split_did(read_dta("df5.dta"))
+did_rating <- split_did(read_dta("df6.dta"))
+did_cost   <- split_did(read_dta("df7.dta"))
+```
+
+
+### Reading the six coefficients together
+
+Six coefficients spread across three regression outputs are hard to compare at a glance. The chunk below extracts each estimate along with its clustered standard error, then plots the three pairs with 90% confidence intervals.
+
+**Task:** Run the chunk below and compare each pair with your predictions from the three quizzes above.
+
+```{r "10_2"}
+library(ggplot2)
+
+# Pull one estimate and its clustered standard error out of a fitted model
+pick <- function(model, term, group, split) {
+  cf <- coef(summary(model))
+  data.frame(split = split, group = group,
+             est = cf[term, 1], se = cf[term, 2])
+}
+
+coefs <- rbind(
+  pick(did_spread, "high_TREATED_X_POST", "Large spread increase", "Information asymmetry"),
+  pick(did_spread, "low_TREATED_X_POST",  "Small spread increase", "Information asymmetry"),
+  pick(did_rating, "low_TREATED_X_POST",  "No credit rating",      "Financial constraints"),
+  pick(did_rating, "high_TREATED_X_POST", "Credit rating",         "Financial constraints"),
+  pick(did_cost,   "low_TREATED_X_POST",  "Low proprietary cost",  "Cost of disclosure"),
+  pick(did_cost,   "high_TREATED_X_POST", "High proprietary cost", "Cost of disclosure")
+)
+
+# Keep the panels and the groups in the order of the exercise
+coefs$split <- factor(coefs$split,
+  levels = c("Information asymmetry", "Financial constraints", "Cost of disclosure"))
+coefs$group <- factor(coefs$group, levels = rev(coefs$group))
+
+z <- qnorm(0.95)
+coefs$lo <- coefs$est - z * coefs$se
+coefs$hi <- coefs$est + z * coefs$se
+
+ggplot(coefs, aes(x = group, y = est)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.12, color = "#2C3E50") +
+  geom_point(size = 3, color = "#2C3E50") +
+  facet_wrap(~ split, ncol = 1, scales = "free_y") +
+  coord_flip() +
+  labs(x = NULL, y = "DiD coefficient on LN_PUB",
+       title = "Where the publication response comes from") +
+  theme_bw()
+```
+
+All three panels show the same pattern. In each pair, one 90% confidence interval lies above zero while the other includes it, and in each case the coefficient that differs from zero is the one the mechanism predicted. The estimate is about 0.17 for firms whose spread widened the most, 0.19 for unrated firms, and 0.21 for firms that can publish cheaply, whereas the estimates for their counterparts lie between 0.01 and 0.04 and are not statistically different from zero.
+
+
+Quiz: For which of the three splitting variables should the results be interpreted with the greatest caution?
+
+(1) The relative increase in the bid-ask spread
+(2) Whether the firm has a credit rating
+(3) Patenting intensity
+(4) None; all three are equally reliable
+
+```{r eval=FALSE}
+# Run line to answer the quiz above
+answer.quiz("quiz_4_caution")
+```
+
+The pooled estimate of about 12.6% is thus not a description of the typical treated firm. The response is concentrated among firms for which the coverage loss widens the information gap, external financing is costly, or research is cheap to give away, while firms at the opposite end barely react at all.
+
+
+## Exercise Conclusion
+
+This problem set examined whether research-intensive firms disclose more about their R&D through scientific publications when investors become less informed about them. We captured such shocks to information asymmetry through the loss of analyst coverage that brokerage house mergers and closures impose on the firms these brokers followed. After introducing the firm-year panel with summary statistics, we followed a single treated firm through one brokerage event. We then asked why a simple regression of publications on analyst coverage cannot be read causally. Coverage and publication activity both depend on firm characteristics such as size, and leaving these characteristics out biases the estimate. The difference-in-differences design addresses this problem by comparing the changes in the treatment and control groups. We first derived the estimator by hand from four group means of a single event and saw that a regression with an interaction term returns the same number. We then pooled all events in a regression with firm, year, and event fixed effects. Treated firms increased their publications by about 12.6% relative to control firms. Adding time-varying controls barely changed this estimate.
+
+One concern remained, because treated and control firms differ systematically in observable characteristics and a linear adjustment may not fully account for these differences. Nearest-neighbor propensity score matching restricted the comparison to control firms that resembled the treated firms before the shock. The estimated effect became slightly larger ($0.151$), which indicates that differences in observable characteristics do not drive the baseline result.
+
+In the last part of the problem set, we split the sample to learn which firms drive the average effect. The coefficient is large and significant for firms whose bid-ask spread widened the most ($0.17$), for firms without a credit rating ($0.19$), and for firms that patent intensively ($0.21$). In each counterpart group, it is close to zero and insignificant. This pattern is consistent with a trade-off between the capital market benefits and the proprietary costs of disclosure. Publishing pays off when the shock widens the information gap or when a firm depends on external financing. It is cheap only when patents already protect the underlying knowledge, so firms that rely on secrecy stay silent even when investors know less about them.
+
+Taken together, the results suggest that scientific publications are more than a by-product of research and that R&D firms also use them to communicate with capital markets.
+
+The chunk below lists the awards you earned while working through this problem set. Click `edit` and then `check` to display them. In total, seven awards were available.
+
+```{r "11_1",optional=TRUE}
+awards()
+```
+
+
+## Exercise References
+
+### Bibliography
+
+Balakrishnan K, Billings MB, Kelly B, Ljungqvist A (2014). Shaping liquidity: On the causal effects of voluntary disclosure. J. Finance 69(5):2237–2278.
+
+Baruffaldi SH, Simeth M, Wehrheim D (2024). Asymmetric information and R&D disclosure: Evidence from scientific publications. Management Sci. 70(2):1052–1069, https://doi.org/10.1287/mnsc.2023.4721.
+
+Bhattacharya S, Ritter JR (1983). Innovation and communication: Signalling with partial disclosure. Rev. Econom. Stud. 50(2):331–346.
+
+Billett MT, Garfinkel JA, Yu M (2017). The effect of asymmetric information on product market outcomes. J. Financial Econom. 123(2):357–376.
+
+Chen J, Roth J (2024). Logs with zeros? Some problems and solutions. Quart. J. Econom. 139(2):891–936, https://arxiv.org/abs/2212.06080.
+
+Cunningham S (2021). Causal Inference: The Mixtape. Yale University Press, https://mixtape.scunning.com/.
+
+Dasgupta P, David PA (1994). Toward a new economics of science. Res. Policy 23(5):487–521.
+
+Derrien F, Kecskés A (2013). The real effects of financial shocks: Evidence from exogenous changes in analyst coverage. J. Finance 68(4):1407–1440.
+
+Diamond DW, Verrecchia RE (1991). Disclosure, liquidity, and the cost of capital. J. Finance 46(4):1325–1359.
+
+Guo B, Pérez-Castrillo D, Toldrà-Simats A (2019). Firms' innovation strategy under the shadow of analyst coverage. J. Financial Econom. 131(2):456–483.
+
+He JJ, Tian X (2013). The dark side of analyst coverage: The case of innovation. J. Financial Econom. 109(3):856–878.
+
+Hoberg G, Maksimovic V (2015). Redefining financial constraints: A text-based analysis. Rev. Financial Stud. 28(5):1312–1352.
+
+Hong H, Kacperczyk M (2010). Competition and bias. Quart. J. Econom. 125(4):1683–1725.
+
+Huntington-Klein N (2022). The Effect: An Introduction to Research Design and Causality. Chapman and Hall/CRC, https://theeffectbook.net/.
+
+Kelly B, Ljungqvist A (2012). Testing asymmetric-information asset pricing models. Rev. Financial Stud. 25(5):1366–1413.
+
+Merton RC (1987). A simple model of capital market equilibrium with incomplete information. J. Finance 42(3):483–510.
+
+New York Times (2001). Company News: Royal Bank of Canada Is Buying Tucker Anthony Sutro. August 2, 2001, https://www.nytimes.com/2001/08/02/business/company-news-royal-bank-of-canada-is-buying-tucker-anthony-sutro.html.
+
+Stoffman N, Woeppel M, Yavuz MD (2022). Small innovators: No risk, no return. J. Accounting Econom. 74(1):101492.
+
+Taboga M (2021). Logistic classification model (logit or logistic regression). Lectures on Probability Theory and Mathematical Statistics. Kindle Direct Publishing, https://www.statlect.com/fundamentals-of-statistics/logistic-classification-model.
+
+Wooldridge JM (2013). Introductory Econometrics: A Modern Approach, 5th edition. Cengage Learning.
+
+
+### R packages
+
+Barrett M (2024). ggdag: Analyze and Create Elegant Directed Acyclic Graphs. R package version 0.2.13, https://CRAN.R-project.org/package=ggdag.
+
+Gaure S (2025). lfe: Linear Group Fixed Effects. R package version 3.1.1, https://CRAN.R-project.org/package=lfe.
+
+Hlavac M (2022). stargazer: Well-Formatted Regression and Summary Statistics Tables. R package version 5.2.3, https://CRAN.R-project.org/package=stargazer.
+
+Kranz S (2020). RTutor: Interactive R problem sets with automatic testing of solutions and automatic hints. R package version 2020.11.25, commit f7d33c77a1138fb52673bd42a47eb9c47d971cb9, https://github.com/skranz/RTutor.
+
+Textor J, van der Zander B, Ankan A (2023). dagitty: Graphical Analysis of Structural Causal Models. R package version 0.3-4, https://CRAN.R-project.org/package=dagitty.
+
+Waring E, Quinn M, McNamara A, Arino de la Rubia E, Zhu H, Ellis S (2026). skimr: Compact and Flexible Summaries of Data. R package version 2.2.2, https://CRAN.R-project.org/package=skimr.
+
+Wickham H, François R, Henry L, Müller K, Vaughan D (2023). dplyr: A Grammar of Data Manipulation. R package version 1.1.4, https://CRAN.R-project.org/package=dplyr.
+
+Wickham H (2025). ggplot2: Elegant Graphics for Data Analysis. R package version 4.0.0, https://CRAN.R-project.org/package=ggplot2.
+
+Wickham H, Miller E, Smith D (2023). haven: Import and Export 'SPSS', 'Stata' and 'SAS' Files. R package version 2.5.4, https://CRAN.R-project.org/package=haven.
+
+

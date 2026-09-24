@@ -1,0 +1,28 @@
+# ---- R and RStudio ----
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Rapp.history
+
+# ---- Package build artifacts ----
+*.tar.gz
+*.Rcheck/
+..Rcheck/
+
+# ---- RTutor user and test files ----
+# Progress, saved code, submissions, and logs created when running the problem set
+*.ups
+*.sav
+*.sub
+*.log
+log/
+# Intermediate files created by create.ps() that the package does not need
+*_output_solution.Rmd
+*_sample_solution.Rmd
+
+# ---- Operating system and cloud sync ----
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
