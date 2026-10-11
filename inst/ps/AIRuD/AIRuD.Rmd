@@ -1109,13 +1109,13 @@ The pooled estimate of about 12.6% is thus not a description of the typical trea
 
 ## Exercise Conclusion
 
-This problem set examined whether research-intensive firms disclose more about their R&D through scientific publications when investors become less informed about them. We captured such shocks to information asymmetry through the loss of analyst coverage that brokerage house mergers and closures impose on the firms these brokers followed. After introducing the firm-year panel with summary statistics, we followed a single treated firm through one brokerage event. We then asked why a simple regression of publications on analyst coverage cannot be read causally. Coverage and publication activity both depend on firm characteristics such as size, and leaving these characteristics out biases the estimate. The difference-in-differences design addresses this problem by comparing the changes in the treatment and control groups. We first derived the estimator by hand from four group means of a single event and saw that a regression with an interaction term returns the same number. We then pooled all events in a regression with firm, year, and event fixed effects. Treated firms increased their publications by about 12.6% relative to control firms. Adding time-varying controls barely changed this estimate.
+This problem set examined whether research-intensive firms disclose more about their R&D through scientific publications when investors become less informed about them. A simple regression of publications on analyst coverage cannot answer this question, because both depend on firm characteristics such as size. We therefore used the loss of analyst coverage that brokerage house mergers and closures impose on the firms these brokers followed, and compared affected and unaffected firms in a difference-in-differences design, first for a single event and then for all events in one regression. Treated firms increased their publications by about 12.6% relative to control firms. This estimate barely changed with time-varying controls and became slightly larger under nearest-neighbor propensity score matching, which indicates that differences in observable characteristics do not drive it.
 
-One concern remained, because treated and control firms differ systematically in observable characteristics and a linear adjustment may not fully account for these differences. Nearest-neighbor propensity score matching restricted the comparison to control firms that resembled the treated firms before the shock. The estimated effect became slightly larger ($0.151$), which indicates that differences in observable characteristics do not drive the baseline result.
+The average hides large differences between firms. The coefficient is large and significant for firms whose bid-ask spread widened the most, for firms without a credit rating, and for firms that patent intensively. In each counterpart group, it is close to zero and insignificant.
 
-In the last part of the problem set, we split the sample to learn which firms drive the average effect. The coefficient is large and significant for firms whose bid-ask spread widened the most ($0.17$), for firms without a credit rating ($0.19$), and for firms that patent intensively ($0.21$). In each counterpart group, it is close to zero and insignificant. This pattern is consistent with a trade-off between the capital market benefits and the proprietary costs of disclosure. Publishing pays off when the shock widens the information gap or when a firm depends on external financing. It is cheap only when patents already protect the underlying knowledge, so firms that rely on secrecy stay silent even when investors know less about them.
+These findings connect to two lines of earlier work. Balakrishnan et al. (2014) show that firms respond to an exogenous loss of public information by disclosing more voluntarily, in the form of earnings guidance, and that this improves the liquidity of their shares. The results here document the same kind of response in a different channel, namely scientific publications. The two channels differ in their horizon. Financial disclosure is oriented toward the short term, whereas scientific publications relate to a firm's long-term performance and growth opportunities (Baruffaldi et al., 2024). For patents, Kim and Valentine (2021) find that a law that increased the disclosure of patents imposes proprietary costs on the affected firms while benefiting the innovation of their rivals. Their study thus concerns the consequences of disclosure, whereas the sample splits here concern the conditions under which firms choose to disclose. The splits are consistent with a trade-off between the capital market benefits and the proprietary costs of disclosure.
 
-Taken together, the results suggest that scientific publications are more than a by-product of research and that R&D firms also use them to communicate with capital markets.
+One point that leaves room for further research is the step from the single event to the pooled regression. In the single event, the estimator compared one group of treated firms with one group of control firms around one date. The pooled regression instead summarized 43 events that took place at different points in time in a single coefficient, with firm and year fixed effects that are shared across events. Goodman-Bacon (2021) shows that, when units are treated at different times, a causal interpretation of a two-way fixed effects DiD estimate requires treatment effects that are constant over time in addition to parallel trends, and Baker et al. (2022) argue that the resulting biases are relevant for many applications in finance and accounting. The response differs across firms, but whether it also differs across events or over time is a question that we did not examine, and the answer matters for how the baseline estimate can be interpreted. Re-estimating the baseline with a method designed for staggered treatment timing, such as that of Callaway and Sant'Anna (2021), would be one way to address it.
 
 The chunk below lists the awards you earned while working through this problem set. Click `edit` and then `check` to display them. In total, seven awards were available.
 
@@ -1128,6 +1128,8 @@ awards()
 
 ### Bibliography
 
+Baker AC, Larcker DF, Wang CCY (2022). How much should we trust staggered difference-in-differences estimates? J. Financial Econom. 144(2):370–395.
+
 Balakrishnan K, Billings MB, Kelly B, Ljungqvist A (2014). Shaping liquidity: On the causal effects of voluntary disclosure. J. Finance 69(5):2237–2278.
 
 Baruffaldi SH, Simeth M, Wehrheim D (2024). Asymmetric information and R&D disclosure: Evidence from scientific publications. Management Sci. 70(2):1052–1069, https://doi.org/10.1287/mnsc.2023.4721.
@@ -1135,6 +1137,8 @@ Baruffaldi SH, Simeth M, Wehrheim D (2024). Asymmetric information and R&D discl
 Bhattacharya S, Ritter JR (1983). Innovation and communication: Signalling with partial disclosure. Rev. Econom. Stud. 50(2):331–346.
 
 Billett MT, Garfinkel JA, Yu M (2017). The effect of asymmetric information on product market outcomes. J. Financial Econom. 123(2):357–376.
+
+Callaway B, Sant'Anna PHC (2021). Difference-in-differences with multiple time periods. J. Econometrics 225(2):200–230.
 
 Chen J, Roth J (2024). Logs with zeros? Some problems and solutions. Quart. J. Econom. 139(2):891–936, https://arxiv.org/abs/2212.06080.
 
@@ -1145,6 +1149,8 @@ Dasgupta P, David PA (1994). Toward a new economics of science. Res. Policy 23(5
 Derrien F, Kecskés A (2013). The real effects of financial shocks: Evidence from exogenous changes in analyst coverage. J. Finance 68(4):1407–1440.
 
 Diamond DW, Verrecchia RE (1991). Disclosure, liquidity, and the cost of capital. J. Finance 46(4):1325–1359.
+
+Goodman-Bacon A (2021). Difference-in-differences with variation in treatment timing. J. Econometrics 225(2):254–277.
 
 Guo B, Pérez-Castrillo D, Toldrà-Simats A (2019). Firms' innovation strategy under the shadow of analyst coverage. J. Financial Econom. 131(2):456–483.
 
@@ -1157,6 +1163,8 @@ Hong H, Kacperczyk M (2010). Competition and bias. Quart. J. Econom. 125(4):1683
 Huntington-Klein N (2022). The Effect: An Introduction to Research Design and Causality. Chapman and Hall/CRC, https://theeffectbook.net/.
 
 Kelly B, Ljungqvist A (2012). Testing asymmetric-information asset pricing models. Rev. Financial Stud. 25(5):1366–1413.
+
+Kim J, Valentine K (2021). The innovation consequences of mandatory patent disclosures. J. Accounting Econom. 71(2):101381.
 
 Merton RC (1987). A simple model of capital market equilibrium with incomplete information. J. Finance 42(3):483–510.
 
